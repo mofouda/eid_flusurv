@@ -1,0 +1,262 @@
+---
+title: "eid_flusurv"
+author: "Mohammad Fouda"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(readxl)
+library(patchwork)
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+theme_set(theme_minimal() + theme(legend.position = "right"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+
+## Read in data
+
+```{r}
+flusurv <-
+    read_excel("data/flusurv-2021.xlsx", sheet = "2008-2013") %>% 
+    janitor::clean_names() 
+
+
+flusurv
+```
+
+flu positives
+
+```{r}
+flusurv_pos <-
+    flusurv %>% 
+    group_by(month1, year1, flu_pos) %>% 
+    filter(flu_pos == 1) %>% 
+    count() 
+
+flusurv_pos
+```
+
+Subtypes: pre_2009_h1n1, a_h3n2, swinf, h5, flu_b
+
+
+pre_2009_h1n1
+
+```{r}
+flusurv_subtype1 <-
+    flusurv %>% 
+    filter(
+        year1 %in% c(2012, 2013), pre_2009_h1n1 ==1) %>% 
+    group_by(year1, month1, pre_2009_h1n1) %>% 
+    count() 
+
+flusurv_subtype1
+```
+
+
+a_h3n2
+
+```{r}
+flusurv_subtype2 <-
+    flusurv %>% 
+    filter(
+        year1 %in% c(2012, 2013), a_h3n2 ==1) %>% 
+    group_by(year1, month1, a_h3n2) %>% 
+    count() 
+
+flusurv_subtype2
+```
+
+
+swinf
+
+```{r}
+flusurv_subtype3 <-
+    flusurv %>% 
+    filter(
+        year1 %in% c(2012, 2013), swinf ==1) %>% 
+    group_by(year1, month1, swinf) %>% 
+    count() 
+
+flusurv_subtype3
+```
+
+
+h5
+
+```{r}
+flusurv_subtype4 <-
+    flusurv %>% 
+    filter(
+        year1 %in% c(2012, 2013), h5 ==1) %>% 
+    group_by(year1, month1, h5) %>% 
+    count() 
+
+flusurv_subtype4
+```
+
+
+flu_b
+
+```{r}
+flusurv_type5 <-
+    flusurv %>% 
+    filter(
+        year1 %in% c(2012, 2013), flu_b ==1) %>% 
+    group_by(year1, month1, flu_b) %>% 
+    count()
+
+flusurv_type5
+```
+
+
+`New 2014 Data`
+
+```{r}
+new_data <-
+    read_excel("data/flusurv-2021.xlsx", sheet = "New 2014 Data") %>% 
+    janitor::clean_names() 
+
+
+new_data
+```
+
+surveillance data 2014
+
+```{r}
+survdata <-
+    new_data %>% 
+    select(epi_week, flu_pos) %>% 
+    filter(epi_week %in% c(2:15), flu_pos == 1) %>% 
+    group_by(epi_week, flu_pos) %>% 
+    count()
+```
+
+characteristic proportions 
+
+age group Weeks 2-12
+
+```{r}
+age_a <-
+    new_data %>% 
+    select(age_g, epi_week) %>% 
+    filter(epi_week %in% c(2:12)) %>% 
+    drop_na() %>% 
+    group_by(epi_week, age_g) %>% 
+    summarize(total = n())
+
+age4_a <-
+    new_data %>% 
+    select(age_g, epi_week) %>% 
+    filter(age_g == 4, epi_week %in% c(2:12)) %>% 
+    group_by(epi_week, age_g) %>% 
+    summarize(age4 = n())
+    
+```
+
+age group Weeks 13-15
+
+```{r}
+age_b <-
+    new_data %>% 
+    select(age_g, epi_week) %>% 
+    filter(epi_week %in% c(13:15)) %>% 
+    group_by(epi_week, age_g) %>% 
+    count()
+
+age4_b <-
+    new_data %>% 
+    select(age_g, epi_week) %>% 
+    filter(age_g == 4, epi_week %in% c(13:15)) %>% 
+    group_by(epi_week, age_g) %>% 
+    count()
+```
+
+ICU admission week 2-12
+
+```{r}
+icu_a <-
+    new_data %>% 
+    select(icu, epi_week) %>% 
+    filter(epi_week %in% c(2:12)) %>% 
+     drop_na() %>% 
+    group_by(epi_week, icu) %>% 
+    count()
+
+icu_y_a <-
+    new_data %>% 
+    select(icu, epi_week) %>% 
+    filter(icu == 1, epi_week %in% c(2:12)) %>% 
+    group_by(epi_week, icu) %>% 
+    count()
+```
+
+ICU admission week 13-15
+
+```{r}
+icu_b <-
+    new_data %>% 
+    select(icu, epi_week) %>% 
+    filter(epi_week %in% c(13:15)) %>% 
+    drop_na() %>% 
+    group_by(epi_week, icu) %>% 
+    count()
+
+icu_y_b <-
+    new_data %>% 
+    select(icu, epi_week) %>% 
+    filter(icu == 1, epi_week %in% c(13:15)) %>% 
+    drop_na() %>% 
+    group_by(epi_week, icu) %>% 
+    count()
+```
+
+Outcome week 2-12
+
+```{r}
+outcome_a <-
+    new_data %>% 
+    select(outcome, epi_week) %>% 
+    filter(epi_week %in% c(2:12)) %>% 
+    drop_na() %>% 
+    group_by(epi_week, outcome) %>% 
+    count()
+
+outcome_died_a <-
+    new_data %>% 
+    select(outcome, epi_week) %>% 
+    filter(outcome == 3, epi_week %in% c(2:12)) %>% 
+    group_by(epi_week, outcome) %>% 
+    count()
+```
+
+Outcome week 13-15
+
+```{r}
+outcome_b <-
+    new_data %>% 
+    select(outcome, epi_week) %>% 
+    filter(epi_week %in% c(13:15)) %>% 
+    drop_na() %>% 
+    group_by(epi_week, outcome) %>% 
+    count()
+
+outcome_died_b <-
+    new_data %>% 
+    select(outcome, epi_week) %>% 
+    filter(outcome == 3, epi_week %in% c(13:15)) %>% 
+    group_by(epi_week, outcome) %>% 
+    count()
+```
+
